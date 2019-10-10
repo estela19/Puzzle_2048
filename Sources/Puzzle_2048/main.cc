@@ -1,20 +1,17 @@
 #include<iostream>
 #include<conio.h>
 
-#include<effolkronium/random.hpp>
 #include<Puzzle_2048/Game.h>
+#include<Puzzle_2048/Block.h>
 
 void Input(Game& game, int key);
 
 int main() {
 	char key;
 	Game game;
-	
-	//random
-	using random = effolkronium::random_static;
-	random::get(1, -1);
 
 	while (true) {
+		game.MakeRandomBlock();
 		game.Print();
 
 		key = tolower(_getch());

@@ -1,14 +1,19 @@
+#pragma once
 class Block {
 private:
-	Block() = default;
+//	Block() = default;
 	int score;
+	bool is_variable;
 
 public:
+	Block();
+	Block(const Block&) = default;
 	static Block MakeBlock();
 	int GetScore()const;
-	void SetScore(Block target);
+	bool GetIsvariable()const;
+	void SetScore(Block& target);
 	void SetScore(int newscore);
 	void SetScoreZero();
 	void SetScoreDouble();
-	//Block& operator+(const Block& rhs);
+	Block& operator=(Block&& rhs);
 };

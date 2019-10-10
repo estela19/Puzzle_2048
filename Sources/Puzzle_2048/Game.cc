@@ -1,49 +1,16 @@
+#pragma once
+#include<array>
+#include<iostream>
+
 #include <Puzzle_2048/Game.h>
-
-
-Block Block::MakeBlock(int x, int y) {
-	return Block(x, y);
-}
-
-Block& Block::operator+(const Block& rhs) {
-	score += rhs.score;
-	return *this;
-}
-
-int Block::GetScore()const {
-	return score;
-}
-
-Pos Block::GetPos()const {
-	return pos;
-}
-
-void Block::SetScore(Block target) {
-	score = target.GetScore();
-	target.SetScoreZero();
-}
-
-void Block::SetScore(int newscore) {
-	score = newscore;
-}
-
-void Block::SetScoreZero() {
-	score = 0;
-}
-
-void Block::SetScoreDouble() {
-	score *= 2;
-}
-
-Block::Block(int x, int y) :pos(x, y), score(0) {};
-
-Block::Block() : pos(0, 0), score(0) {};
+#include <Puzzle_2048/Block.h>
+#include<effolkronium/random.hpp>
 
 Game::Game() {
 	int i, j;
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 4; j++) {
-			board[i][j] = Block::MakeBlock(i, j);
+			board[i][j] = Block::MakeBlock();
 		}
 	}
 
@@ -56,23 +23,19 @@ void Game::SetDirection(Direction dir) {
 
 //TODO
 void Game::MakeRandomBlock() {
-
-}
-/*
-void Game::Randomtest() {
-	srand(time(NULL));
+	using random = effolkronium::random_static;
 	int rand_x;
 	int rand_y;
-	do {
-		rand_x = rand() % 4;
-		rand_y = rand() % 4;
-	} while (board[rand_x][rand_y].GetScore() == 0);
 
-	int score = (rand % 3 + 1) * 2;
-	board[rand_x][board_y].SetScore(score);
+	do {
+		rand_x = random::get(0, 3);
+		rand_y = random::get(0, 3);
+	} while (board[rand_x][rand_y].GetScore() != 0);
+	//TODO: score random하게 결정
+	
+	board[rand_x][rand_y].SetScore(2);
 
 }
-*/
 
 void Game::MoveDecision() {
 	if (direction == Direction::Up) {
@@ -99,13 +62,14 @@ void Game::Move_up() {
 			for (y = 0; y < i; y++) {
 				//이동하려는 방향에 0이 있고 이동하는 칸이 0이 아니라서 숫자가 그대로 이동하는 경우
 				if (board[x][y].GetScore() == 0 && board[x][y + 1].GetScore() != 0) {
-					board[x][y].SetScore(board[x + 1][y]);
-					board[x][y + 1].SetScoreZero();
+//					board[x][y].SetScore(board[x][y + 1]);
+//					board[x][y + 1].SetScoreZero();
+					board[x][y] = std::move(board[x][y + 1]);
 					continue;
 				}
 
 				//이동하려는 방향에 있는 칸과 현재칸이 같은 숫자여서 2배하는 경우
-				else if (board[x][y].GetScore() == board[x][y + 1].GetScore()) {
+				else if (board[x][y].GetScore() == board[x][y + 1].GetScore() && board[x][y].GetIsvariable() == true) {
 					board[x][y].SetScoreDouble();
 					board[x][y + 1].SetScoreZero();
 					continue;
@@ -126,16 +90,16 @@ void Game::Move_down() {
 		for (i = 0; i < 4; i++) {
 			for (y = 3; y > i; y--) {
 				//이동하려는 방향에 0이 있고 이동하는 칸이 0이 아니라서 숫자가 그대로 이동하는 경우
-				if (board[x][y - 1].GetScore() == 0 && board[x][y].GetScore() != 0) {
-					board[x][y - 1].SetScore(board[x][y]);
-					board[x][y].SetScoreZero();
+				if (board[x][y].GetScore() == 0 && board[x][y - 1].GetScore() != 0) {
+					board[x][y].SetScore(board[x][y - 1]);
+					board[x][y - 1].SetScoreZero();
 					continue;
 				}
 
 				//이동하려는 방향에 있는 칸과 현재칸이 같은 숫자여서 2배하는 경우
-				else if (board[x - 1][y].GetScore() == board[x][y].GetScore()) {
-					board[x - 1][y].SetScoreDouble();
-					board[x][y].SetScoreZero();
+				else if (board[x][y].GetScore() == board[x][y - 1].GetScore()) {
+					board[x][y].SetScoreDouble();
+					board[x][y - 1].SetScoreZero();
 					continue;
 				}
 
@@ -151,7 +115,9 @@ void Game::Move_down() {
 //블록이 왼쪽으로 모일때
 void Game::Move_left() {
 	int x, y, i;
+	int flag = 0;
 	for (y = 0; y < 4; y++) {
+		flag = 0;
 		for (i = 3; i >= 0; i--) {
 			for (x = 0; x < i; x++) {
 				//이동하려는 방향에 0이 있고 이동하는 칸이 0이 아니라서 숫자가 그대로 이동하는 경우
@@ -162,9 +128,11 @@ void Game::Move_left() {
 				}
 
 				//이동하려는 방향에 있는 칸과 현재칸이 같은 숫자여서 2배하는 경우
-				else if (board[x][y].GetScore() == board[x + 1][y].GetScore()) {
+				else if (board[x][y].GetScore() == board[x + 1][y].GetScore()
+					) {
 					board[x][y].SetScoreDouble();
 					board[x + 1][y].SetScoreZero();
+					flag = 1;
 					continue;
 				}
 
@@ -185,16 +153,16 @@ void Game::Move_right() {
 		for (i = 0; i < 4; i++) {
 			for (x = 3; x > i; x--) {
 				//이동하려는 방향에 0이 있고 이동하는 칸이 0이 아니라서 숫자가 그대로 이동하는 경우
-				if (board[x - 1][y].GetScore() == 0 && board[x][y].GetScore() != 0) {
-					board[x - 1][y].SetScore(board[x][y]);
-					board[x][y].SetScoreZero();
+				if (board[x][y].GetScore() == 0 && board[x - 1][y].GetScore() != 0) {
+					board[x][y].SetScore(board[x - 1][y]);
+					board[x - 1][y].SetScoreZero();
 					continue;
 				}
 
 				//이동하려는 방향에 있는 칸과 현재칸이 같은 숫자여서 2배하는 경우
-				else if (board[x - 1][y].GetScore() == board[x][y].GetScore()) {
-					board[x - 1][y].SetScoreDouble();
-					board[x][y].SetScoreZero();
+				else if (board[x][y].GetScore() == board[x - 1][y].GetScore() && i == 0) {
+					board[x][y].SetScoreDouble();
+					board[x - 1][y].SetScoreZero();
 					continue;
 				}
 
@@ -208,15 +176,16 @@ void Game::Move_right() {
 }
 
 void Game::Print()const {
+	char zero_shape = '-';
 	int i, j;
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 4; j++) {
-			if (board[i][j].GetScore() == 0) {
-				printf("   -");
+			if (board[j][i].GetScore() == 0) {
+				printf("%4c", zero_shape);
 			}
 
 			else {
-				printf("%4d ", board[i][j].GetScore());
+				printf("%4d", board[j][i].GetScore());
 			}
 		}
 		printf("\n");

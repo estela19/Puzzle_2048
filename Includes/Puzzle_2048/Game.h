@@ -1,6 +1,8 @@
 #pragma once
 #include<array>
 
+#include<Puzzle_2048/Block.h>
+
 enum class Direction {
 	Invalid,
 	Left,
@@ -9,31 +11,11 @@ enum class Direction {
 	Down
 };
 
-struct Pos {
-	int x, y;
-	Pos(int x_, int y_) :x(x_), y(y_) {};
-};
 
-class Block {
-private:
-	Block(int x, int y);
-	int score;
-	Pos pos;
-
-public:
-	Block();
-	int GetScore()const;
-	Pos GetPos()const;
-	void SetScore(Block target);
-	void SetScore(int newscore);
-	void SetScoreZero();
-	void SetScoreDouble();
-	Block& operator+(const Block& rhs);
-	static Block MakeBlock(int x, int y);
-};
 
 class Game {
 private:
+//	using p_block = std::unique_ptr<Block>;
 	using board_array = std::array<std::array<Block, 4>, 4>;
 	board_array board;
 	Direction direction;
