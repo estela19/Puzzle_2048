@@ -15,5 +15,6 @@ public:
 	void SetScore(int newscore);
 	void SetScoreZero();
 	void SetScoreDouble();
+	void SetIsvariable(bool variable);
 	Block& operator=(Block&& rhs);
 };

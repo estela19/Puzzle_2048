@@ -15,14 +15,16 @@ enum class Direction {
 
 class Game {
 private:
-//	using p_block = std::unique_ptr<Block>;
 	using board_array = std::array<std::array<Block, 4>, 4>;
 	board_array board;
 	Direction direction;
+	int block_num;
 
 public:
 	Game();
+	Direction GetDirection()const;
 	void SetDirection(Direction dir);
+	void ResetIsvariable();
 	void MakeRandomBlock();
 	void MoveDecision();
 	void Move_up();

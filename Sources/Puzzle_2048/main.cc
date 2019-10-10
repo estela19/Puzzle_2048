@@ -10,10 +10,17 @@ int main() {
 	char key;
 	Game game;
 
+	game.MakeRandomBlock();
 	while (true) {
+		//만약 입력이 유효하다면 새블록 생성, 전체 이동가능성 초기화
+		if (game.GetDirection() != Direction::Invalid) {
 		game.MakeRandomBlock();
+		game.ResetIsvariable();
+		}
+
 		game.Print();
 
+		//대소문자 구분없이 모두 소문자로 받음
 		key = tolower(_getch());
 		Input(game, key);
 		game.MoveDecision();
@@ -21,6 +28,7 @@ int main() {
 	}
 }
 
+//입력에따라 state 전달
 void Input(Game& game, int key) {
 	if (key == 'w') {
 		game.SetDirection(Direction::Up);
@@ -37,4 +45,9 @@ void Input(Game& game, int key) {
 	else if (key == 's') {
 		game.SetDirection(Direction::Down);
 	}
+
+	else {
+		game.SetDirection(Direction::Invalid);
+	}
+
 }
